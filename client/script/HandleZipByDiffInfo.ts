@@ -2,36 +2,52 @@ import { DiffInfo, DirInfoItem, eFileType } from "../../common/Beans";
 import * as fs from 'fs-extra'
 import { c_resMap } from "../c_index";
 import { SEP } from "../../common/config";
+import { myTools } from "../../common/MyTools";
 //根据diffInfo 更新zip包
 function updateZipByDiffInfo(diffInfo: DiffInfo, cb: () => void) {
+
+    //清空已有的diff文件
+    let rootPath = `${c_resMap.diffZipDir}${SEP}${diffInfo.rootName}`
+    if (fs.existsSync(rootPath)) {
+        fs.removeSync(rootPath)
+    }
+
     // console.log('updateZipByDiffInfo:', diffInfo)
     let addArr = diffInfo.addInfoItemArr.slice()
     //目录和文件分离 目录diffZip
     let dirArr_diffzip: DirInfoItem[] = [] //diffzip路径下
     let fileArr_diffzip: DirInfoItem[] = []
-    let dirUrlArr_unzip: string[] = [] //unzip路径下
-    let fileUrlArr_unzip: string[] = []
+    let dirUrlArr_res: string[] = [] //res路径下
+    let fileUrlArr_res: string[] = []
 
     for (let index = 0; index < addArr.length; index++) {
         let element = addArr[index];
-        let unzipDirUrl = pathChange_unzipDir(element.url)
+        let resDirUrl = pathChange_resDir(element.url)
         element.url = pathChange_diffZipDir(element.url)
         if (element.type == eFileType.directory) {
             dirArr_diffzip.push(element)
-            dirUrlArr_unzip.push(unzipDirUrl)
+            dirUrlArr_res.push(resDirUrl)
         } else {
             fileArr_diffzip.push(element)
-            fileUrlArr_unzip.push(unzipDirUrl)
+            fileUrlArr_res.push(resDirUrl)
         }
     }
+    console.log('新增文件:', fileArr_diffzip)
+    console.log('新增目录:', dirArr_diffzip)
     //在diffZip路径下创建目录
     for (let str of dirArr_diffzip) {
         let dirPath = str.url
         fs.mkdirpSync(dirPath)
     }
+    if (dirArr_diffzip.length == 0 && fileArr_diffzip.length != 0) {
+        console.log('上传文件中没有文件夹,先创建一个根目录')
+        let rootPath = myTools.getParentRoot(fileArr_diffzip[0].url)
+        fs.mkdirpSync(rootPath)
+    }
+
     //拷贝文件
     for (let i = 0; i < fileArr_diffzip.length; i++) {
-        let src = fileUrlArr_unzip[i]
+        let src = fileUrlArr_res[i]
         let dest = fileArr_diffzip[i].url
         fs.copyFileSync(src, dest)
     }
@@ -47,7 +63,7 @@ function pathChange_diffZipDir(zipUrl: string) {
     return result
 }
 
-function pathChange_unzipDir(zipUrl: string) {
+function pathChange_resDir(zipUrl: string) {
     //console.log('pathChange', zipUrl)
     let diffZipDir = c_resMap.resDir
     let result = `${diffZipDir}${SEP}${zipUrl}`

@@ -17,14 +17,14 @@ let c_resMap = {
     ['diffZipDir']: `${__dirname}${SEP}diffzip`,
 }
 
-let testPath = `${c_resMap.resDir}${SEP}GamingDragon.zip`
-let testZipName = 'wl_game'
+let wantUploadZipPath = `${c_resMap.resDir}${SEP}GamingDragon.zip`
+let wantUploadZip = 'myWxShare'
 
 
 //let s_dirInfo: DirInfo
 function c2s_getDirInfo() {
     //请求资源目录信息
-    let josnStr = JSON.stringify({ wantUploadDirName: testZipName })
+    let josnStr = JSON.stringify({ wantUploadDirName: wantUploadZip })
     let wantUploadDir_data = querystring.stringify({ wantUploadDir: josnStr })
     let c2s_getDirInfo_options = {
         hostname: SERVER_IP,
@@ -154,8 +154,8 @@ function start() {
         //对比拿到diffInfo
         return new Promise(resolve => {
             let s_dirInfo = <DirInfo>data
-            testPath = `${c_resMap.resDir}${SEP}${s_dirInfo.rootName}.zip`
-            handleWantUploadZip(testPath, s_dirInfo, (diffInfo: DiffInfo) => {
+            wantUploadZipPath = `${c_resMap.resDir}${SEP}${s_dirInfo.rootName}.zip`
+            handleWantUploadZip(wantUploadZipPath, s_dirInfo, (diffInfo: DiffInfo) => {
                 return resolve(diffInfo)
             })
         })
@@ -172,7 +172,7 @@ function start() {
         })
             //差异文件压缩
             .then(() => {
-                let srcPath = `${c_resMap.diffZipDir}${SEP}${testZipName}`
+                let srcPath = `${c_resMap.diffZipDir}${SEP}${wantUploadZip}`
                 outPath = `${srcPath}.zip`
                 return myTools.zip(srcPath, outPath)
             })
@@ -220,8 +220,8 @@ function test() {
     // let testPath = `${c_resMap.diffZipDir}${SPRIT}${testZipName}.zip`
     // c2s_uploadDiffZip(testPath)
 
-    let testPath_2 = `${c_resMap.resDir}${SEP}${testZipName}`
-    let testPath_3 = `${c_resMap.resDir}${SEP}${testZipName}.zip`
+    let testPath_2 = `${c_resMap.resDir}${SEP}${wantUploadZip}`
+    let testPath_3 = `${c_resMap.resDir}${SEP}${wantUploadZip}.zip`
 
 
     // myTools.getMd5(testPath_1, (str) => {
@@ -231,11 +231,12 @@ function test() {
     // myTools.getMd5(testPath_3, (str) => {
     //     console.log(`${testPath_3}文件的md5值为:`, str)
     // })
-    myTools.zip(testPath_2, testPath_3).then(() => {
-        myTools.getMd5(testPath_3, (str) => {
-            console.log(`${testPath_3}文件的md5值为:`, str)
-        })
-    })
+    // myTools.zip(testPath_2, testPath_3).then(() => {
+    //     myTools.getMd5(testPath_3, (str) => {
+    //         console.log(`${testPath_3}文件的md5值为:`, str)
+    //     })
+    // })
+    myTools.unzip(`${c_resMap.diffZipDir}${SEP}${wantUploadZip}.zip`)
 }
 //test()
 

@@ -31,7 +31,7 @@ let operationList = {
     ['uploadDiffZip']: 'uploadDiffZip', //上传
     ['putInDiffInfo']: 'putInDiffInfo',//客户端提交diffInfo信息 服务器确认uuid
 }
-let testRes = `${s_resMap.resDir}${SEP}GamingDragon`
+let uploadRes = `${s_resMap.resDir}${SEP}GamingDragon`
 
 
 
@@ -101,8 +101,8 @@ function onRequestDirInfo(request: http.IncomingMessage, response: http.ServerRe
         let want = <string>body_1['wantUploadDir']
         let wantUploadDirName = <string>JSON.parse(want)['wantUploadDirName']
         console.log('客户端请求上传的目录名:', wantUploadDirName)
-        testRes = `${s_resMap.resDir}${SEP}${wantUploadDirName}`
-        let dirInfoManager = new DirInfoManager(testRes, _currHandleUUID)
+        uploadRes = `${s_resMap.resDir}${SEP}${wantUploadDirName}`
+        let dirInfoManager = new DirInfoManager(uploadRes, _currHandleUUID)
         let dirInfo = dirInfoManager.getDirInfo()
         response.writeHead(200, { "Content-Type": "application/json" });
         let msg = { dirInfo: dirInfo, code: 200 }  //dirInfo 与客户端约定
@@ -150,7 +150,7 @@ function onUploadDiffZip(request: http.IncomingMessage, response: http.ServerRes
                         //差异处理 增删文件
                         .then(() => {
                             return new Promise((resovle) => {
-                                handleDiffUplaod(_currHandleDiffInfo, address, testRes, () => {
+                                handleDiffUplaod(_currHandleDiffInfo, address, uploadRes, () => {
 
                                     console.log('差异文件处理完毕!')
                                     return resovle()
@@ -319,7 +319,7 @@ function test() {
     // myTools.unZip(`${s_resMap.uploadDir}${SEP}VXshare.zip`, `${s_resMap.uploadDir}`, () => {
     //     console.log('解压成功')
     // })
-    myTools.unzip(`${s_resMap.uploadDir}${SEP}VXshare.zip`).then(() => { '解压成功' }, () => { '解压失败' })
+    myTools.unzip(`${s_resMap.outputDir}${SEP}myWxShare.zip`).then(() => { '解压成功' }, () => { '解压失败' })
 }
 
 //test()

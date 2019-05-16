@@ -29,23 +29,23 @@ export function handleDiffUplaod(diffInfo: DiffInfo, uploadZip: string, srcPath:
             cb()
         })
     } else {
+        console.log('服务器有缓存文件 进行增删处理')
         myTools.zip(srcPath, srcZipPath)
             .then(() => {
                 return new Promise((resolve, reject) => {
-                    console.log('从src目录拷贝要操作的zip到output目录下')
+                    console.log('从res目录拷贝要操作的zip到output目录下')
                     fs.copyFileSync(srcZipPath, outputDir_zip)
                     //解压备份的文件
                     myTools.unzip(outputDir_zip).then(() => {
-                        console.log('解压成功')
+                        console.log('服务暂存文件备份解压成功')
                         return resolve()
                     })
                 })
             })
             .then(() => {
-                //删除文件
                 return new Promise(resolve => {
                     for (let del of diffInfo.deleteInfoItemArr.slice()) {
-                        myTools.deleteFileOrDir(pathChange_res(del.url))
+                        myTools.deleteFileOrDir(pathChange_output(del.url))
                     }
                     console.log('删除多余文件成功')
                     //创建文件
@@ -62,18 +62,27 @@ export function handleDiffUplaod(diffInfo: DiffInfo, uploadZip: string, srcPath:
                     //创建目录
                     for (let dir of dirArr) {
                         // console.log('创建目录:', pathChange_res(dir.url))
-                        fs.mkdirpSync(pathChange_res(dir.url))
+                        fs.mkdirpSync(pathChange_output(dir.url))
+                    }
+                    if (dirArr.length == 0 && fileArr.length != 0) {
+                        console.log('上传文件中没有文件夹,先创建一个根目录')
+                        let rootPath = pathChange_output(myTools.getParentRoot(fileArr[0].url))
+                        fs.mkdirpSync(rootPath)
                     }
                     console.log('创建目录成功')
-                    //拷贝文件
-                    for (let i = 0; i < fileArr.length; i++) {
-                        let fileItem = fileArr[i];
-                        let scr = pathChange_upload(fileItem.url)
-                        let dest = pathChange_res(fileItem.url)
-                        fs.copyFileSync(scr, dest)
-                    }
-                    console.log('拷贝文件成功')
-                    return resolve()
+                    //解压upploadzip 
+                    myTools.unzip(uploadZip).then(() => {
+                        console.log('解压客户端上传的差异文件')
+                        //拷贝文件 upload => output
+                        for (let i = 0; i < fileArr.length; i++) {
+                            let fileItem = fileArr[i];
+                            let scr = pathChange_upload(fileItem.url)
+                            let dest = pathChange_output(fileItem.url)
+                            fs.copyFileSync(scr, dest)
+                        }
+                        console.log('拷贝文件成功')
+                        return resolve()
+                    })
                 })
 
             })
@@ -92,7 +101,7 @@ export function handleDiffUplaod(diffInfo: DiffInfo, uploadZip: string, srcPath:
 
 }
 //路径替换为服务器对应目录
-function pathChange_res(diffFilePath: string) {
+function pathChange_output(diffFilePath: string) {
     return `${s_resMap.outputDir}${SEP}` + diffFilePath
 }
 

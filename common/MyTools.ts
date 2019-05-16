@@ -1,4 +1,4 @@
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as archiver from "archiver"
 import * as unzipper from 'unzipper'
 import { SEP } from './config'
@@ -239,12 +239,13 @@ export class myTools {
                 //'zip',
                 '-X',
                 '-r',
+                '-S',
                 `${output}`,
                 `${input}`
             ]
             console.log('zip ' + args.join(' '), 'pwd:', opeationPath)
             let child = child_process.spawn('zip', args, { cwd: opeationPath, shell: true })
-            child.stdout.pipe(process.stdout);
+            // child.stdout.pipe(process.stdout);
             child.stderr.pipe(process.stderr);
 
             child.on('error', err => {
@@ -271,6 +272,11 @@ export class myTools {
         input = input.split(SEP).pop()
         console.log('unzip input:', input)
         console.log('unzip opeationPath', opeationPath)
+        let outpathDir = `${opeationPath}${SEP}${this.getFileName(input, true)}`
+        //解压目录已经存在时 删除后再解压 (覆盖解压有问题)
+        if (fs.existsSync(outpathDir)) {
+            fs.removeSync(outpathDir)
+        }
         return new Promise((resolve, reject) => {
             let args = [
                 '-o',
@@ -278,7 +284,7 @@ export class myTools {
             ]
             console.log('unzip ' + args.join(' '), 'pwd:', opeationPath)
             let child = child_process.spawn('unzip', args, { cwd: opeationPath, shell: true })
-            child.stdout.pipe(process.stdout);
+            // child.stdout.pipe(process.stdout);
             child.stderr.pipe(process.stderr);
 
             child.on('error', err => {
@@ -290,7 +296,7 @@ export class myTools {
                 if (code == 0) {
                     resolve();
                 } else {
-                    reject(new Error('解压压缩失败'))
+                    reject(new Error(`解压压缩失败 code:${code}`))
                 }
             })
         })
