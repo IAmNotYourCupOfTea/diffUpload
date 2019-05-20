@@ -4,9 +4,9 @@
 
 import * as  http from 'http'
 import { SEP, SERVER_IP, SERVER_PORT } from '../common/config';
-import { handleWantUploadZip } from './script/HandleDirInfo';
+import { handleWantUploadZip } from './script/c_HandleDirInfo';
 import { DirInfo, DiffInfo } from '../common/Beans';
-import { HandleZipByDiffInfo__test, updateZipByDiffInfo } from './script/HandleZipByDiffInfo';
+import { HandleZipByDiffInfo__test, updateZipByDiffInfo } from './script/c_DiffUploadHelper';
 import { myTools } from '../common/MyTools';
 import * as querystring from 'querystring'
 import * as fs from 'fs-extra';
@@ -49,7 +49,7 @@ function c2s_getDirInfo() {
                 data += chunk
             })
             res.on('end', () => {
-                console.log('data:', data, 'type:', typeof (data))
+                //console.log('data:', data, 'type:', typeof (data))
                 let obj = JSON.parse(data.trim())
                 let s_dirInfo = obj['dirInfo']
                 console.log('data:', s_dirInfo, 'type:', typeof (s_dirInfo), s_dirInfo.rootName)
@@ -236,7 +236,10 @@ function test() {
     //         console.log(`${testPath_3}文件的md5值为:`, str)
     //     })
     // })
-    myTools.unzip(`${c_resMap.diffZipDir}${SEP}${wantUploadZip}.zip`)
+    //myTools.unzip(`${c_resMap.diffZipDir}${SEP}${wantUploadZip}.zip`)
+    let src = `${c_resMap.resDir}${SEP}testDir${SEP}__local_aars___D__CocosCreator_resources_cocos2d_x_cocos_platform_android_java_libs_android_async_http_1_4_9_jar_unspecified_jar.xml`
+    let des = `${c_resMap.resDir}${SEP}testDir_copy${SEP}__local_aars___D__CocosCreator_resources_cocos2d_x_cocos_platform_android_java_libs_android_async_http_1_4_9_jar_unspecified_jar.xml`
+    fs.copyFileSync(src, des)
 }
 //test()
 

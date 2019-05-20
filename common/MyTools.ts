@@ -245,7 +245,7 @@ export class myTools {
             ]
             console.log('zip ' + args.join(' '), 'pwd:', opeationPath)
             let child = child_process.spawn('zip', args, { cwd: opeationPath, shell: true })
-            // child.stdout.pipe(process.stdout);
+            child.stdout.pipe(process.stdout);
             child.stderr.pipe(process.stderr);
 
             child.on('error', err => {
@@ -255,6 +255,7 @@ export class myTools {
             child.on('exit', code => {
                 //console.log('exit', code)
                 if (code == 0) {
+                    console.log('压缩成功')
                     resolve();
                 } else {
                     reject(new Error('压缩失败'))
@@ -275,6 +276,7 @@ export class myTools {
         let outpathDir = `${opeationPath}${SEP}${this.getFileName(input, true)}`
         //解压目录已经存在时 删除后再解压 (覆盖解压有问题)
         if (fs.existsSync(outpathDir)) {
+            console.log('解压目录已经存在 删除后再解压')
             fs.removeSync(outpathDir)
         }
         return new Promise((resolve, reject) => {
@@ -284,7 +286,7 @@ export class myTools {
             ]
             console.log('unzip ' + args.join(' '), 'pwd:', opeationPath)
             let child = child_process.spawn('unzip', args, { cwd: opeationPath, shell: true })
-            // child.stdout.pipe(process.stdout);
+            child.stdout.pipe(process.stdout);
             child.stderr.pipe(process.stderr);
 
             child.on('error', err => {
@@ -294,9 +296,10 @@ export class myTools {
             child.on('exit', code => {
                 //console.log('exit', code)
                 if (code == 0) {
+                    console.log('解压成功')
                     resolve();
                 } else {
-                    reject(new Error(`解压压缩失败 code:${code}`))
+                    reject(new Error(`解压压缩失败 code:${code},操作文件:${outpathDir}`))
                 }
             })
         })

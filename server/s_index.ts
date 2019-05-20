@@ -6,7 +6,7 @@ import { SEP, SERVER_PORT } from './../common/config'
 import { DirInfoManager } from './../common/DirInfoManager'
 import * as querystring from 'querystring'
 import { DiffInfo } from '../common/Beans';
-import { handleDiffUplaod, updateResDir } from './script/DiffUpload';
+import { handleDiffUplaod, updateResDir } from './script/s_DiffUploadHelper';
 
 /**
  * 差异上传服务器 
@@ -174,7 +174,7 @@ function onUploadDiffZip(request: http.IncomingMessage, response: http.ServerRes
                             console.log('更新服务器res目录下操作的文件')
                             if (code == 200) {
                                 updateResDir(_currHandleDiffInfo.rootName, () => {
-                                    console.log('res 目录更新完成', ' 并没有删除output目录下的文件')
+                                    console.log('res目录更新完成', ' 并没有删除output目录下的文件')
                                 })
                             }
                         })
