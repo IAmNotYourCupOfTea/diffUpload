@@ -46,7 +46,7 @@ export class myTools {
         if (fs.existsSync(path)) {
             files = fs.readdirSync(path)
             files.forEach((file, index) => {
-                let curPath = path + '\\' + file
+                let curPath = path + SEP + file
                 if (fs.statSync(curPath).isDirectory()) {
                     this.deleteDir(curPath) //是目录递归删除
                 } else {
